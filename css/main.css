@@ -1,0 +1,221 @@
+
+
+/* ==========================================================================
+   Author's custom styles
+   ========================================================================== */
+
+body {
+	background: #191919 url("../img/assault.png");
+	color: #EEEEEE;
+	font-family: 'Oswald', sans-serif;
+	font-size: 18px;
+	line-height: 1.3em;
+}
+::-moz-selection {
+    background: #b3d4fc;
+    text-shadow: none;
+}
+
+::selection {
+    background: #b3d4fc;
+    text-shadow: none;
+}
+header {
+	font-family: 'Oleo Script Swash Caps', cursive;
+	margin-top: 30px;
+	margin-bottom: 20px;
+	text-shadow: rgba(216, 89, 255, 0.8) 3px 3px 10px;
+	background: url("../img/trophy-small.png") no-repeat top right;
+	min-height: 48px;
+	padding-right: 90px;
+}
+header h1 {
+	font-size: 48px;
+}
+hr {
+	border-color: #4C205B;
+}
+input[type="text"] {
+	transition: border 0.2s linear 0s, box-shadow 0.2s linear 0s, background-color 0.2s linear;
+    background-color: #ffffff;
+}
+input[type="text"].alert {
+    background-color: #F7F778; /* IE */
+    background-color: rgba(255, 255, 0, 0.5); /* Everyone else */
+}
+label {
+	font-size: 20px;
+}
+#nomination-form input[type="text"] {
+	margin-bottom: 5px;
+}
+
+.content {
+	padding: 10px 15px;
+	margin-bottom: 25px;
+	background: #EEEEEE;
+	color: #333333;
+}
+.content>h2 {
+	text-align: center;
+	margin: 10px 0;
+}
+.days {
+	color: #FFFFFF;
+	background: #333333;
+	padding: 2px 2px 2px 8px;
+	letter-spacing: 6px;
+	box-shadow: inset #000000 -2px -2px 5px;
+	border-radius: 5px;
+}
+.accordion {
+	background: #EEEEEE;
+	color: #333333;
+}
+.accordion-group {
+	border-color: #999999;
+	border-radius: 0;
+	border: none;
+}
+.accordion-heading {
+	background: #74338E;
+	border: none;
+}
+.accordion-heading a {
+	color: #ffffff;
+}
+
+.category {
+	text-align: left;
+	font-size: 40px;
+	line-height: 50px;
+	display: block;
+	text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.3);
+	color: #333;
+	background-image: -o-linear-gradient(transparent, rgba(0, 0, 0, 0.2));
+	background-image: -webkit-linear-gradient(transparent, rgba(0, 0, 0, 0.2));
+	background-image: -moz-linear-gradient(transparent, rgba(0, 0, 0, 0.2));
+	background-image: -ms-linear-gradient(transparent, rgba(0, 0, 0, 0.2));
+	background-image: linear-gradient(transparent, rgba(0, 0, 0, 0.2));
+	-webkit-transition: background-color 1000ms linear, opacity 1000ms linear;
+	   -moz-transition: background-color 1000ms linear, opacity 1000ms linear;
+	     -o-transition: background-color 1000ms linear, opacity 1000ms linear;
+	    -ms-transition: background-color 1000ms linear, opacity 1000ms linear;
+	        transition: background-color 1000ms linear, opacity 1000ms linear;
+	border-radius: 0;
+}
+.btn.category {
+	margin: 10px 0;
+	padding: 4px;
+}
+.btn.category:hover, .btn.category:active, .btn.category.active, .btn.category.disabled {
+	color: #222;
+	background-position: 0 0;
+}
+.category .category-icon {
+	width: 100px;
+	font-size: 80px;
+	height: 80px;
+	float: left;
+	margin-right: 10px;
+	line-height: 0.8em;
+	border: 2px solid rgba(0, 0, 0, 0.3);
+	border-radius: 5px;
+	text-align: center;
+	vertical-align: middle;
+}
+.btn.category .category-text {
+	left: 45px;
+	width: 100%;
+	padding: 5px;
+}
+.category .category-text .award {
+	font-size: 25px;
+	line-height: 20px;
+}
+.category .category-nominees {
+	font-size: 18px;
+	line-height: 24px;
+	display: block;
+	clear: both;
+	padding-top: 5px;
+}
+#category-text {
+	margin-top: 4px;
+}
+#voting {
+	color: #333333;
+}
+#voting .category {
+	background: #EEEEEE;
+	margin-bottom: 20px;
+	font-size: 36px;
+	line-height: 38px;
+}
+#voting .category .category-text {
+	padding: 5px;
+	background: #74338E;
+	color: #ffffff;
+}
+#voting .category .category-text .category-award {
+	font-size: 18px;
+	line-height: 19px;
+}
+#voting .category .vote-container {
+	padding: 0 10px 10px;
+	width: auto;
+}
+#voting .category .span6 {
+	margin-top: 10px;
+}
+#voting .category .row-reset {
+	margin-left: 0;
+}
+#voting-label {
+	overflow: hidden;
+}
+.vote {
+	border: 1px solid #000;
+	position: relative;
+	margin-bottom: 5px;
+	min-height: 59px;
+}
+.vote .vote-text {
+	background: rgba(0, 0, 0, 0.5);
+	color: #ffffff;
+	bottom: 0;
+	position: absolute;
+	left: 0;
+	right: 0;
+	padding: 5px;
+	font-size: 16px;
+	text-shadow: 1px 1px 1px #000000;
+}
+.vote .vote-text h4 {
+	font-size: 16px;
+	margin: 0 0 2px;
+}
+.vote .vote-text small {
+	font-size: 12px;
+	line-height: 12px;
+	display: block;
+}
+.vote .vote-text small a {
+	color: #CE5BFF;
+}
+.vote .vote-text .vote-btn {
+	float: right;
+}
+.teaser {
+	padding: 200px 0;
+	text-align: center;
+	font-weight: bold;
+	font-size: 196px;
+	line-height: 200px;
+}
+
+
+
+
+
+

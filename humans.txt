@@ -1,0 +1,16 @@
+# humanstxt.org/
+# The humans responsible & technology colophon
+
+# TEAM
+
+    t2t2 -- Coding -- @t2t2
+
+# THANKS
+
+    YOU!
+
+# TECHNOLOGY COLOPHON
+
+    HTML5, CSS3
+    PHP, Slim Framework, NotORM
+    jQuery, Modernizr
