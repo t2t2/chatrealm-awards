@@ -187,6 +187,33 @@ $app->post("/vote", function() use ($app, $db) {
 	}
 });
 
+/* Results */
+$app->get("/", function() use ($app, $db) {
+	if($app->config("phase") != "results") {
+		$app->pass();
+	}
+	$resultdata = array();
+	foreach ($db->categories()->where("published", 1) as $catid => $category) {
+		$catdata = array(
+			"nominees" => array(),
+			"id" => $category["id"],
+			"text" => $category["title"],
+			"award" => $category["award"],
+			"total" => 0
+		);
+
+		foreach ($category->nominees() as $nomid => $nominee) {
+			$catdata["nominees"][] = array("id" => $nominee["id"], "text" => $nominee["name"], "url" => $nominee["url"], "image" => $nominee["image"], "count" => intval($nominee->votes()->count("id")));
+			$catdata["total"] += $nominee->votes()->count("id");
+		}
+		usort($catdata["nominees"], function($a, $b) {
+			return $b["count"] - $a["count"]; // z-to-a
+		});
+		$resultdata[] = $catdata;
+	}
+	$app->render("resultspub.php", array("resultdata" => $resultdata));
+});
+
 $app->get("/results/:secret(/:format)", function($secret, $format = "page") use ($app, $db) {
 	if($app->config("secret") and $app->config("secret") != $secret) {
 		$app->pass();

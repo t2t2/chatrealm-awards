@@ -85,6 +85,11 @@ label {
 	color: #ffffff;
 }
 
+.header-block {
+	display: block;
+	margin-bottom: 5px;
+	font-size: 20px;
+}
 .category {
 	text-align: left;
 	font-size: 40px;
@@ -174,11 +179,15 @@ label {
 #voting-label {
 	overflow: hidden;
 }
+.results .page-header {
+	margin: 30px 0 10px;
+}
 .vote {
 	border: 1px solid #000;
 	position: relative;
 	margin-bottom: 5px;
 	min-height: 59px;
+	max-width: 530px;
 }
 .vote .vote-text {
 	background: rgba(0, 0, 0, 0.5);
@@ -190,6 +199,9 @@ label {
 	padding: 5px;
 	font-size: 16px;
 	text-shadow: 1px 1px 1px #000000;
+}
+.results .vote-text {
+	font-size: 20px;
 }
 .vote .vote-text h4 {
 	font-size: 16px;
