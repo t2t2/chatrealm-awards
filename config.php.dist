@@ -1,51 +1,29 @@
 <?php
-
-
-$pdo = new PDO("mysql:dbname=awards", "username", "password");
-$structure = new NotORM_Structure_Convention(
-    $primary = "id", // id_$table
-    $foreign = "%s_id", // id_$table
-    $table = "%s", // {$table}s
-	$prefix = "award_" // award_$table
-);
-
-date_default_timezone_set("GMT");
-$settings = array(
+return array(
+	/*
+	 * Slim configuration
+	 */
+	"mode" => "development",
 	"debug" => true,
-	//"phase" => "nominations",
-	"phase" => "voting",
-	//"phase" => "results",
-	"categories" => array(
-		/* General */
-		"best" => array("Golden Belt", "Best Podcast"),
-		"worst" => array("Poop...en Belt", "Best Worst Podcast"),
-		"unknown" => array("who?", "Best Podcast We've Never Heard Of"),
-		"nobody" => array("Empty CluBBhouse", "Best Podcast Nobody Listens To"),
-		"chatrealm" => array("Chatrealm Show", "Best Podcast Made By Chatrealmer(s)"),
-		"cancelled" => array("2nd Chance", "Best Cancelled Podcast"),
-		"should-cancelled" => array("Stop It! Stop it right now!", "Podcast That Should Have Been Cancelled Last April"),
-		"chris-ronin" => array("Chris Ronin", "Best Podcast Hosted By An Atheist Squirrel Juggler Based In South America"),
-		"should-audio" => array("Reverse NSFW", "Best Video Podcast That Would Be Better With Audio-only"),
-		"newsletter" => array("Digital", "Best Analog Podcast (formerly known as \"Best Newsletter\")"),
-		"fix-yourself" => array("Dude, What's Up With This", "Best Podcast That Needs To Get Their S*** In Gear Because They're Awesome And We Want More."),
-		/* Semispecific */
-		"song" => array("DJ Z", "Best Intro Song"),
-		"best-beard" => array("Beards' Dad Of The Year", "Best Beard"),
-		"worst-beard" => array("Beards' Mom Of The Year", "Worst Beard"),
-		/* Guest Appearance */
-		"brian" => array("College Promotion Tour", "Best Brian Brushwood Guest Appearance"),
-		"justin" => array("Follow the Clues, Gumshoes!", "Best Justin Robert Young Guest Appearance"),
-		/* Events */
-		"dick" => array("8===D", "Nerdgasm Of the Year"),
-		"swear" => array("Monkey Fighting Snakes On This Monday To Friday Plane", "Best Swear-Evasion Euphemism In A Podcast"),
-		"fuck" => array("Bomb", "Most Gratious Use Of The F-Word In A Podcast"),
-		"toms-beard" => array("Glory", "Best Visual Representation Of Tom Merrit's Beard On A Podcast"),
-		"awards-show" => array("Inception", "Best \"Best Of 2012\" awards show"),
+
+	/*
+	 * Database
+	 */
+	"database" => array(
+		"username" => "root",
+		"password" => "",
+		"dbname" => "awards",
+		"prefix" => "award_",
 	),
-	"nomination-start" => new DateTime("2013-01-10 00:00:00"),
-	"nomination-end" => new DateTime("2013-01-23 00:00:00"),
-	"voting-start" => new DateTime("2013-01-23 03:00:00"),
-	"voting-end" => new DateTime("2013-01-30 03:00:00"),
-	"voting-reset-timezone" => new DateTimeZone("America/Los_Angeles"),
-	"secret" => "2012winners"
+
+
+	/*
+	 * Site configuration
+	 */
+
+	// Current season
+	"season" => 2,
+
+	// Default timezone
+	"timezone" => "America/Los_Angeles",
 );

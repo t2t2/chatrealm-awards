@@ -1,16 +1,18 @@
-# humanstxt.org/
-# The humans responsible & technology colophon
+/* TEAM */
+Webzone: t2t2
+Site: http://t2t2.eu/
+Twitter: t2t2
+Location: .ee
 
-# TEAM
+/* THANKS */
 
-    t2t2 -- Coding -- @t2t2
+The Chatrealm: http://chatrealm.us
 
-# THANKS
+/* SITE */
 
-    YOU!
-
-# TECHNOLOGY COLOPHON
-
-    HTML5, CSS3
-    PHP, Slim Framework, NotORM
-    jQuery, Modernizr
+Last Update: 2013/12/01
+Standards: HTML5, CSS3
+Components:
+	Frontend: jQuery, Foundation 5, Font AWESOME
+	Backend: php5, Slim, Plates, NotORM
+Software: Sublime Text

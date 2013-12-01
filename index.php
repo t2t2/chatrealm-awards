@@ -1,253 +1,155 @@
 <?php
-require 'vendor/autoload.php';
-require 'config.php';
+require "vendor/autoload.php";
 
-$app = new \Slim\Slim($settings);
-$db = new NotORM($pdo, $structure);
+use Carbon\Carbon;
 
-/* Escape characters, taken from Laravel */
-function e($value) {
-	return htmlentities($value, ENT_QUOTES, "UTF-8", false);
-}
-$base_url = 'http://'.$_SERVER['HTTP_HOST'].str_replace('index.php', '', $_SERVER['SCRIPT_NAME']);
-function url($rest) {
-	global $base_url; //yolo
-	return $base_url.$rest;
-}
-function using($thing) {
-	return $thing;
-}
+// Initialisation
+session_start();
+$app = new \Slim\Slim(require "config.php");
+$app->view(new \t2t2\SlimPlates());
 
-$app->view()->appendData(array('base_url' => $base_url));
+$app->container->singleton("pdo", function () use($app) {
+	$config = $app->config("database");
 
-/* Nominations */
-$app->get("/", function() use ($app, $db) {
-	if($app->config("phase") != "nominations") {
-		$app->pass();
+	return new PDO("mysql:dbname={$config["dbname"]}", $config["username"], $config["password"]);
+});
+$app->container->singleton("db", function () use($app) {
+	$config = $app->config("database");
+
+	$structure = new NotORM_Structure_Convention(
+		$primary = "id",
+		$foreign = "%s_id",
+	    $table = "%ss", // {$table}s
+		$prefix = $config["prefix"] // award_$table
+	);
+
+	return new NotORM($app->pdo, $structure);;
+});
+/*
+$app->db->debug = function($query, $parameters) {
+	var_dump(compact("query", "paraemters"));
+};
+*/
+date_default_timezone_set($app->config("timezone"));
+
+// Add data
+$app->view->setData(array(
+	"app" => $app,
+));
+
+function getSeasonViewData($season = null) {
+	if (is_null($season)) {
+		$season = $app->db->seasons[$app->config("season")];
 	}
-	if($app->config("nomination-start")->diff(new DateTime)->invert == 1) {
-		$app->render("teaser.php", array("start_date" => $app->config("nomination-start")));
-		return true;
-	}
-	$req = $app->request();
-	$time_left = $app->config("nomination-end")->diff(new DateTime);
-	// Already nominated
-	$nominated_today = array();
-	if($time_left->invert) {
-		$awardcheck = $db->nominations();
-		$awardcheck->where("ip", $req->getIp());
-		$awardcheck->where("date", using(new DateTime())->format('Y-m-d'));
-		foreach ($awardcheck as $nomination) {
-			$nominated_today[$nomination["category"]] = true;
+
+	$timeplan = array(
+		array(
+			"key" => "categories",
+			"title" => "Category Nominations",
+			"description" => "We can't just give out awards like nothing. Help us decide the categories!",
+			"class" => false,
+		),
+		array(
+			"key" => "nominations",
+			"title" => "Nominations",
+			"description" => "You can't just expect one guy to come up with a list of nominees.",
+			"class" => false,
+		),
+		array(
+			"key" => "voting",
+			"title" => "Voting",
+			"description" => "You decide who will be the winner!",
+			"class" => false,
+		),
+	);
+
+	$past = true;
+	foreach ($timeplan as &$section) {
+		$section["start"] = new Carbon($season["{$section["key"]}_start"]);
+		$section["end"] = new Carbon($season["{$section["key"]}_end"]);
+		if($section["key"] == $season["current"]) {
+			$past = false;
+			$section["class"] = "active";
+		}
+		if($past) {
+			$section["class"] = "past";
 		}
 	}
-	$next_reset = new DateTime("tomorrow");
-	$app->render("home.php", array("categories" => $app->config("categories"), "end_date" => $app->config("nomination-end"), "time_left" => $time_left, "open" => $time_left->invert == 1, "nominated_today" => $nominated_today, "next_reset" => $next_reset));
-});
-$app->post("/nominate", function() use ($app, $db) {
-	$req = $app->request();
-	$time_left = $app->config("nomination-end")->diff(new DateTime);
-	if($time_left->invert == 0) {
-		echo json_encode(array("error" => "Nomination period is over!"));
-		return;
-	}
-	if(strlen($req->params("text")) == 0 && strlen($req->params("url")) == 0) {
-		echo json_encode(array("error" => "Fill out one of the nomine info fields"));
-		return;
-	}
-	$categories = $app->config("categories");
-	if(!$categories[$req->params("category")]) {
-		echo json_encode(array("error" => "Invalid category"));
-		return;
-	}
-	// Nomination time limit check
-	$awardcheck = $db->nominations();
-	$awardcheck->where("category", $req->params("category"));
-	$awardcheck->where("ip", $req->getIp());
-	$awardcheck->where("date", using(new DateTime())->format('Y-m-d'));
-	$awardcheck->limit(1);
-	if(count($awardcheck) == 0) {
-		$nomination = $db->nominations()->insert(array(
-			"category" => $req->params("category"),
-			"title" => $req->params("text"),
-			"url" => $req->params("url"),
-			"ip" => $req->getIp(),
-			"date" => using(new DateTime())->format('Y-m-d'),
-		));
-		echo json_encode(array("success" => true));
-		return;
-	} else {
-		echo json_encode(array("error" => "Already voted in this category today"));
-		return;
-	}
-});
-/* Voting */
-$app->get("/", function() use ($app, $db) {
-	if($app->config("phase") != "voting") {
-		$app->pass();
-	}
-	$req = $app->request();
-	$time_left = $app->config("voting-end")->diff(new DateTime);
-	// Already nominated
-	$voted_today = array();
-	if($time_left->invert) {
-		$awardcheck = $db->votes();
-		$awardcheck->where("ip", $req->getIp());
-		$awardcheck->where("date", using(new DateTime("now", $app->config("voting-reset-timezone")))->format('Y-m-d'));
-		foreach ($awardcheck as $vote) {
-			$voted_today[$vote->nominees["categories_id"]] = true;
-		}
-	}
-	$next_reset = new DateTime("tomorrow", $app->config("voting-reset-timezone"));
-	$categories = $db->categories()->where("published", 1);
-	$app->render("vote.php", array("categories" => $categories, "end_date" => $app->config("voting-end"), "time_left" => $time_left, "open" => $time_left->invert == 1, "voted_today" => $voted_today, "next_reset" => $next_reset));
-});
-$app->get("/nominees/:id", function($id) use ($app, $db) {
-	if($app->config("phase") != "voting") {
-		$app->pass();
-	}
-	$req = $app->request();
-	$category = $db->categories[$id];
-	if(!$category) {
-		echo json_encode(array("error" => "Not Found"));
-		return;
-	}
-	$time_left = $app->config("voting-end")->diff(new DateTime);
-	$already = false;
-	if($time_left->invert == 0) {
-		$already = true;
-	}
-	foreach ($category->nominees() as $nominee) {
-		$votecheck = $nominee->votes();
-		$votecheck->where("ip", $req->getIp());
-		$votecheck->where("date", using(new DateTime("now", $app->config("voting-reset-timezone")))->format('Y-m-d'));
-		$votecheck->limit(1);
-		if(count($votecheck) > 0) {
-			$already = true;
-		}
-	}
-	$nominees = array_values(array_map(function($nominee) {
-		return $nominee->jsonSerialize();
-	}, $category->nominees()->jsonSerialize()));
 
-	echo json_encode(array(
-		"success" => true, "already" => $already, "category" => $category->jsonSerialize(),
-		"nominees" => $nominees
+	$timeplan[] = array(
+		"key" => "show",
+		"title" => "Awards Show",
+		"description" => "We could just print a list of winners on this page and be done with it. NO!",
+		"class" => ($past ? "active" : false),
+		"when" => new Carbon($season["awards_show"]),
+	);
+
+	$title = $season["name"];
+
+	return compact("timeplan", "title");
+}
+function array_random_value($array) {
+	return $array[array_rand($array)];
+}
+
+/* CATEGORY NOMINATIONS PERIOD */
+$app->get("/", function() use($app) {
+	$season = $app->db->seasons[$app->config("season")];
+	if($season["current"] != "categories") {
+		$app->pass();
+	}
+
+	extract(getSeasonViewData($season));
+
+	$seasons = $app->db->seasons()->order("id desc")->select("id", "name");
+	$categoryPlaceholders = array(
+		"Best kitten picture", "Nicest tweet", "The Slammiest Jam", "Most otaku kawaiiii desu desu desu"
+	);
+
+	$between = array(new Carbon($season["categories_start"]), new Carbon($season["categories_end"]));
+
+	$app->render("categories", compact("title", "seasons", "season", "timeplan", "categoryPlaceholders", "between"));
+})->name("home.categories");
+
+$app->post("/category", function() use($app) {
+	$req = $app->request();
+	$season = $app->db->seasons[$app->config("season")];
+	if($season["current"] != "categories") {
+		$app->pass();
+	}
+
+	$between = array(new Carbon($season["categories_start"]), new Carbon($season["categories_end"]));
+
+	if($between[0]->isFuture() or $between[1]->isPast()) {
+		$app->pass();
+	}
+
+	$category = $req->params("category");
+	$nominees = $req->params("nominees");
+
+	if(strlen($category) == 0) {
+		$app->flash("alert", "Please enter a category");
+		$app->redirect($app->urlFor("home.categories"));
+	}
+
+	$added = $app->db->category_nominations()->insert(array(
+		"category" => $category,
+		"nominees" => $nominees,
+		"ip" => $req->getIp(),
+		"date" => Carbon::now()->toDateString(),
+		"created_at" => Carbon::now()->toDateTimeString(),
 	));
-	return;
-});
-$app->post("/vote", function() use ($app, $db) {
-	$req = $app->request();
-	$time_left = $app->config("voting-end")->diff(new DateTime);
-	if($time_left->invert == 0) {
-		echo json_encode(array("error" => "Voting period is over!"));
-		return;
-	}
-	if(!$req->params("category") || !$req->params("nominee")) {
-		echo json_encode(array("error" => "Bug in your voting pants"));
-		return;
-	}
-	$category = $db->categories[$req->params("category")];
-	if(!$category) {
-		echo json_encode(array("error" => "Invalid category"));
-		return;
-	}
 
-	$todaycheck = true;
-	$votedfor = false;
-	// Nomination time limit check
-	$nominees = $category->nominees();
-	foreach ($nominees as $nominee) {
-		if($nominee["id"] == $req->params("nominee")) {
-			$votedfor = $nominee;
-		}
-
-		$votecheck = $nominee->votes();
-		$votecheck->where("ip", $req->getIp());
-		$votecheck->where("date", using(new DateTime("now", $app->config("voting-reset-timezone")))->format('Y-m-d'));
-		$votecheck->limit(1);
-		if(count($votecheck) > 0) {
-			$todaycheck = false;
-		}
-	}
-	if($todaycheck) {
-		if(!$votedfor) {
-			echo json_encode(array("error" => "Invalid vote"));
-			return;
-		}
-		$votedfor->votes()->insert(array(
-			"ip" => $req->getIp(),
-			"date" => using(new DateTime("now", $app->config("voting-reset-timezone")))->format('Y-m-d'),
-		));
-		echo json_encode(array("success" => true));
-		return;
+	if($added) {
+		$app->flash("success", "Your category nomination has been saved!");
+		$app->redirect($app->urlFor("home.categories"));
 	} else {
-		echo json_encode(array("error" => "Already voted in this category today"));
-		return;
+		$app->flash("alert", "Error saving :(");
+		$app->redirect($app->urlFor("home.categories"));
 	}
-});
-
-/* Results */
-$app->get("/", function() use ($app, $db) {
-	if($app->config("phase") != "results") {
-		$app->pass();
-	}
-	$resultdata = array();
-	foreach ($db->categories()->where("published", 1) as $catid => $category) {
-		$catdata = array(
-			"nominees" => array(),
-			"id" => $category["id"],
-			"text" => $category["title"],
-			"award" => $category["award"],
-			"total" => 0
-		);
-
-		foreach ($category->nominees() as $nomid => $nominee) {
-			$catdata["nominees"][] = array("id" => $nominee["id"], "text" => $nominee["name"], "url" => $nominee["url"], "image" => $nominee["image"], "count" => intval($nominee->votes()->count("id")));
-			$catdata["total"] += $nominee->votes()->count("id");
-		}
-		usort($catdata["nominees"], function($a, $b) {
-			return $b["count"] - $a["count"]; // z-to-a
-		});
-		$resultdata[] = $catdata;
-	}
-	$app->render("resultspub.php", array("resultdata" => $resultdata));
-});
-
-$app->get("/results/:secret(/:format)", function($secret, $format = "page") use ($app, $db) {
-	if($app->config("secret") and $app->config("secret") != $secret) {
-		$app->pass();
-	}
-	$resultdata = array();
-	foreach ($db->categories()->where("published", 1) as $catid => $category) {
-		$catdata = array(
-			"nominees" => array(),
-			"id" => $category["id"],
-			"text" => $category["title"],
-			"award" => $category["award"],
-			"total" => 0
-		);
-
-		foreach ($category->nominees() as $nomid => $nominee) {
-			$catdata["nominees"][] = array("id" => $nominee["id"], "text" => $nominee["name"], "url" => $nominee["url"], "image" => $nominee["image"], "count" => intval($nominee->votes()->count("id")));
-			$catdata["total"] += $nominee->votes()->count("id");
-		}
-		$resultdata[] = $catdata;
-	}
-	if($format == "json") {
-		echo json_encode(array("categories" => $resultdata));
-	} else {
-		$app->render("results.php", array("resultdata" => $resultdata));
-	}
-});
-
-$app->notFound(function () use ($app) {
-    $app->render('404.html');
-});
+})->name("categories.post");
 
 
 
-
-
-
+// Do your thing
 $app->run();
