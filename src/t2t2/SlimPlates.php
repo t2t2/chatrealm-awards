@@ -45,6 +45,6 @@ class SlimPlatesExtension implements \League\Plates\Extension\ExtensionInterface
 	}
 
 	public function url($value) {
-		return $this->getSlim()->request->getRootUri().$value;
+		return $this->getSlim()->request->getRootUri().'/'.$value;
 	}
 }
