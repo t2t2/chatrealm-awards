@@ -5,7 +5,7 @@
 <div class="row">
 	<div class="medium-6 columns">
 		<h2>Category Nominations</h2>
-		<p>Look buddy. We can't just give out awards like it's nothing. So help us come up with the categories and you get to suggest some nominations that will have a highe chance of getting nominated.</p>
+		<p>Look buddy. We can't just give out awards like it's nothing. So help us come up with the categories and you get to suggest some nominations that will have a higher chance of getting nominated.</p>
 		<p>You can nominate as many categories as you want during this week.</p>
 	</div>
 	<div class="medium-6 columns">
