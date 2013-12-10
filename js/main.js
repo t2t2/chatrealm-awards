@@ -35,12 +35,11 @@ AWARDS = {
 				var title = $("#nominee-title").val();
 				var url = $("#nominee-url").val();
 				// Just cause
-				/*
-				if($("#nominee-text").val() == "t2t2") {
+				if(title == "t2t2" && category == 23) {
 					alert("How about nominating someone who actually deserves an award?")
 					return false
 				}
-				*/
+
 
 				$("#nomination-button").attr("disabled", "disabled")
 				$.post($("#nomination-form").attr("action"), {category: category, title: title, url: url}, function (data) {
