@@ -5,8 +5,8 @@ SET foreign_key_checks = 0;
 SET time_zone = '+02:00';
 SET sql_mode = 'NO_AUTO_VALUE_ON_ZERO';
 
-DROP TABLE IF EXISTS `award_categories`;
-CREATE TABLE `award_categories` (
+DROP TABLE IF EXISTS `award_categorys`;
+CREATE TABLE `award_categorys` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `season_id` int(10) unsigned NOT NULL,
   `award` varchar(255) NOT NULL,
@@ -14,7 +14,7 @@ CREATE TABLE `award_categories` (
   `published` int(1) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `season_id` (`season_id`),
-  CONSTRAINT `award_categories_ibfk_1` FOREIGN KEY (`season_id`) REFERENCES `award_seasons` (`id`)
+  CONSTRAINT `award_categorys_ibfk_1` FOREIGN KEY (`season_id`) REFERENCES `award_seasons` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
@@ -33,12 +33,14 @@ CREATE TABLE `award_category_nominations` (
 DROP TABLE IF EXISTS `award_nominations`;
 CREATE TABLE `award_nominations` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `category` varchar(32) CHARACTER SET utf8 NOT NULL,
+  `category_id` int(10) unsigned NOT NULL,
   `title` text CHARACTER SET utf8,
   `url` text CHARACTER SET utf8,
   `ip` varchar(40) CHARACTER SET utf8 NOT NULL,
   `date` date NOT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `category` (`category_id`),
+  CONSTRAINT `award_nominations_ibfk_1` FOREIGN KEY (`category_id`) REFERENCES `award_categorys` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 
@@ -51,7 +53,7 @@ CREATE TABLE `award_nominees` (
   `image` text NOT NULL,
   PRIMARY KEY (`id`),
   KEY `categories_id` (`categories_id`),
-  CONSTRAINT `award_nominees_ibfk_1` FOREIGN KEY (`categories_id`) REFERENCES `award_categories` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `award_nominees_ibfk_1` FOREIGN KEY (`categories_id`) REFERENCES `award_categorys` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
@@ -85,4 +87,4 @@ CREATE TABLE `award_votes` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
--- 2013-12-01 07:36:54
+-- 2013-12-10 18:03:30
