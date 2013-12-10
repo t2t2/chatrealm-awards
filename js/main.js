@@ -9,8 +9,57 @@ AWARDS = {
 				$("#previous-awards").slideToggle();
 				return false;
 			});
+
+			// Countdowns
+			$("[data-countdown]").html("").kkcountdown({ displayZeroDays : false, textAfterCount: "now" })
 		},
 	},
+	nominations: {
+		init: function () {
+			$(".category-panel[data-category-id]").click(function () {
+				if(!$(this).data("category-id")) return false;
+				$("#categories-list").slideUp(100)
+				$("#nomination-form-container").slideDown(50)
+
+				$("#nominee-category-dropdown").val($(this).data("category-id"))
+				$("#category-text").text($(this).data("category-title"))
+				return false
+			});
+			$("#js-back-to-categories").click(function () {
+				$("#categories-list").slideDown(100)
+				$("#nomination-form-container").slideUp(100)
+				return false
+			});
+			$("#nomination-form").submit(function () {
+				var category = $("#nominee-category-dropdown").val();
+				var title = $("#nominee-title").val();
+				var url = $("#nominee-url").val();
+				// Just cause
+				/*
+				if($("#nominee-text").val() == "t2t2") {
+					alert("How about nominating someone who actually deserves an award?")
+					return false
+				}
+				*/
+
+				$("#nomination-button").attr("disabled", "disabled")
+				$.post($("#nomination-form").attr("action"), {category: category, title: title, url: url}, function (data) {
+					$("#nomination-button").removeAttr("disabled")
+					if(data.success) {
+						$("#categories-list").show(0, function () {
+							$(".category-panel[data-category-id=\""+category+"\"]").addClass("voted").removeClass("votable").data("category-id", "").find(".fa-trophy").removeClass("fa-trophy").addClass("fa-check-square-o")
+						})
+						$("#nomination-form-container").hide();
+						$("#nominee-category-dropdown, #nominee-title, #nominee-url").val("")
+						$("#category-text").text("")
+					} else {
+						alert(data.error)
+					}
+				}, "json");
+				return false
+			});
+		}
+	}
 }; /* AWARDS */
 
 

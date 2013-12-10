@@ -25,11 +25,13 @@ $app->container->singleton("db", function () use($app) {
 
 	return new NotORM($app->pdo, $structure);;
 });
+
 /*
 $app->db->debug = function($query, $parameters) {
 	var_dump(compact("query", "paraemters"));
 };
-*/
+//*/
+
 date_default_timezone_set($app->config("timezone"));
 
 // Add data
@@ -100,8 +102,8 @@ $app->get("/", function() use($app) {
 	}
 
 	extract(getSeasonViewData($season));
-
 	$seasons = $app->db->seasons()->order("id desc")->select("id", "name");
+
 	$categoryPlaceholders = array(
 		"Best kitten picture", "Nicest tweet", "The Slammiest Jam", "Most otaku kawaiiii desu desu desu"
 	);
@@ -149,7 +151,91 @@ $app->post("/category", function() use($app) {
 	}
 })->name("categories.post");
 
+/* NOMINATIONS PERIOD */
+$app->get("/", function() use($app) {
+	$req = $app->request();
+	$season = $app->db->seasons[$app->config("season")];
+	if($season["current"] != "nominations") {
+		$app->pass();
+	}
 
+	extract(getSeasonViewData($season));
+	$seasons = $app->db->seasons()->order("id desc")->select("id", "name");
+
+	$categories = $season->categorys();
+
+	$between = array(new Carbon($season["nominations_start"]), new Carbon($season["nominations_end"]));
+
+	$nominated_today = array();
+	$awardchecks = $app->db->nominations(array("ip" => $req->getIp(), "date" => Carbon::now()->toDateString()));
+	foreach ($awardchecks as $nomination) { // Somehow this is just 1 query. 
+		$nominated_today[$nomination["category_id"]] = true;
+	}
+
+	$next_reset = Carbon::tomorrow();
+
+	$app->render("nominations", compact("title", "seasons", "season", "timeplan", "between", "categories", "next_reset", "nominated_today"));
+})->name("home.nominations");
+
+$app->post("/nominate", function() use($app) {
+	$req = $app->request();
+	$season = $app->db->seasons[$app->config("season")];
+	if($season["current"] != "nominations") {
+		$app->pass();
+	}
+
+	$between = array(new Carbon($season["nominations_start"]), new Carbon($season["nominations_end"]));
+
+	if($between[0]->isFuture() or $between[1]->isPast()) {
+		if($req->isAjax()) {
+			echo json_encode(array("error" => "Nomination period is over!"));
+			return;
+		} else {
+			$app->flash("alert", "Nomination period is over!");
+			$app->redirect($app->urlFor("home.categories"));
+		}
+	}
+
+	$category = $req->params("category");
+	$title = $req->params("title");
+	$url = $req->params("url");
+
+	if(!($category = $season->categorys("id", $category)->fetch())) {
+		if($req->isAjax()) {
+			echo json_encode(array("error" => "ಠ_ಠ"));
+			return;
+		} else {
+			$app->flash("alert", "ಠ_ಠ");
+			$app->redirect($app->urlFor("home.categories"));
+		}
+	}
+
+	$awardcheck = $category->nominations(array("ip" => $req->getIp(), "date" => Carbon::now()->toDateString()))->limit(1);
+	if(count($awardcheck) == 0) {
+		$nomination = $awardcheck->insert(array(
+			"title" => $title,
+			"url" => $url,
+			"ip" => $req->getIp(),
+			"date" => Carbon::now()->toDateString(),
+		));
+		if($req->isAjax()) {
+			echo json_encode(array("success" => true));
+			return;
+		} else {
+			$app->flash("success", "Already voted in this category today");
+			$app->redirect($app->urlFor("home.categories"));
+		}
+	} else {
+		if($req->isAjax()) {
+			echo json_encode(array("error" => "Already nominated in this category today"));
+			return;
+		} else {
+			$app->flash("alert", "Already nominated in this category today");
+			$app->redirect($app->urlFor("home.categories"));
+		}
+	}
+
+})->name("nominations.post");
 
 // Do your thing
 $app->run();

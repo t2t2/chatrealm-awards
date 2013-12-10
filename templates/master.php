@@ -15,7 +15,7 @@
 	<link type="text/plain" rel="author" href="<?= $this->url("humans.txt"); ?>" />
 </head>
 
-<body>
+<body<?=isset($this->javascript) ? " data-controller=\"{$this->javascript[0]}\" data-action=\"{$this->javascript[1]}\"" : null ?>>
 	<div id="previous-awards" class="hide">
 		<a href="#" class="js-previous-awards-link right" id="previous-awards-close">Close <i class="fa fa-times"></i></a>
 		<h2>Previous Awards</h2>
@@ -60,6 +60,7 @@
 
 	<script src="<?= $this->url("js/vendor/jquery-2.0.3.min.js"); ?>"></script>
 	<script src="<?= $this->url("js/vendor/foundation.min.js"); ?>"></script>
+	<script src="<?= $this->url("js/vendor/kkcountdown.min.js"); ?>"></script>
 	<script src="<?= $this->url("js/main.js"); ?>"></script>
 </body>
 </html>

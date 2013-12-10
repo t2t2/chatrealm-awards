@@ -20,6 +20,13 @@ fieldset legend {
 	background: #111111;
 }
 
+.no-js .show-js {
+	display: none;
+}
+.js .hide-js {
+	display: none;
+}
+
 /* Previous awards */
 #previous-awards {
 	background: #008CBA;
@@ -85,6 +92,61 @@ header.global h1 {
 	text-align: center;
 	border-bottom: 1px dotted #999999;
 }
+
+
+.category-panel {
+	display: block;
+	padding: 0.5em;
+	color: #333333;
+	line-height: 1em;
+	margin-bottom: 0;
+}
+.category-panel.voted {
+	background: #8DE874;
+	border-color: #A6E595;
+}
+a.category-panel.voted {
+	color: #333333 !important;
+	cursor: default !important;
+}
+.category-panel.votable:hover, .category-panel.votable:active, .category-panel.votable:focus {
+	color: #666666;
+	box-shadow: 0px 0px 10px #ffffff;
+}
+.category-panel .category-trophy {
+	width: 4em;
+	float: left;
+}
+.category-panel .category-text {
+	margin-left: 4.5em;
+	margin-top: -0.3em;
+}
+.category-panel h4 {
+	margin-bottom: 0;
+}
+a.category-panel:hover h4, .category-panel label {
+	color: #666666;
+}
+.category-panel label {
+	margin-top: 0.3em;
+}
+.category-panel a { /* Not to be mistaken with link that is a category-panel */
+	color: #999999;
+}
+.category-panel small, .category-panel label {
+	line-height: 1em;
+}
+.category-panel #category-text {
+	font-family: "Open Sans","Helvetica Neue","Helvetica",Helvetica,Arial,sans-serif;
+	font-size: 1.4375rem;
+	line-height: 1em;
+	font-weight: 300;
+}
+
+#categories-list, #nomination-form-container {
+	top: 0;
+}
+
 
 
 form .help {
