@@ -47,13 +47,12 @@ CREATE TABLE `award_nominations` (
 DROP TABLE IF EXISTS `award_nominees`;
 CREATE TABLE `award_nominees` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `categories_id` int(10) unsigned NOT NULL,
+  `category_id` int(10) unsigned NOT NULL,
   `name` text NOT NULL,
   `url` text NOT NULL,
-  `image` text NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `categories_id` (`categories_id`),
-  CONSTRAINT `award_nominees_ibfk_1` FOREIGN KEY (`categories_id`) REFERENCES `award_categorys` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  KEY `categories_id` (`category_id`),
+  CONSTRAINT `award_nominees_ibfk_1` FOREIGN KEY (`category_id`) REFERENCES `award_categorys` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
@@ -78,13 +77,13 @@ CREATE TABLE `award_seasons` (
 DROP TABLE IF EXISTS `award_votes`;
 CREATE TABLE `award_votes` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `nominees_id` int(10) unsigned NOT NULL,
+  `nominee_id` int(10) unsigned NOT NULL,
   `ip` varchar(40) NOT NULL,
   `date` date NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `nominees_id` (`nominees_id`),
-  CONSTRAINT `award_votes_ibfk_1` FOREIGN KEY (`nominees_id`) REFERENCES `award_nominees` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  KEY `nominees_id` (`nominee_id`),
+  CONSTRAINT `award_votes_ibfk_1` FOREIGN KEY (`nominee_id`) REFERENCES `award_nominees` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
--- 2013-12-10 18:03:30
+-- 2013-12-14 20:54:00

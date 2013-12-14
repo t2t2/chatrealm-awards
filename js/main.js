@@ -58,6 +58,41 @@ AWARDS = {
 				return false
 			});
 		}
+	},
+	voting: {
+		init: function () {
+			$(".vote-form").click(function (event) {
+				// http://stackoverflow.com/a/6877923
+				$(this).data('clicked',$(event.target))
+			});
+			$(".vote-form").submit(function () {
+				if(!$(this).data("category-id")) return false;
+
+				if($(this).data('clicked')) { // Only if clickd submit button is known
+					var $form = $(this)
+
+					var $targetBtn = $(this).data('clicked')
+					$targetBtn.attr("disabled", "disabled")
+
+					var data = {}
+					data[$targetBtn.get(0).name] = $targetBtn.get(0).value
+					console.log(data)
+
+					$.post($form.attr("action"), data, function (data) {
+						if(data.success) {
+							$form.slideUp(200, function () {
+								$(".category-panel[data-category-id=\""+$form.data("category-id")+"\"]").addClass("voted").data("category-id", "").find(".fa-trophy").removeClass("fa-trophy").addClass("fa-check-square-o")
+								$form.remove()
+							});
+						} else {
+							$targetBtn.removeAttr("disabled")
+							alert(data.error)
+						}
+					}, "json");
+				}
+				return false;
+			});
+		}
 	}
 }; /* AWARDS */
 

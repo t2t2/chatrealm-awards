@@ -4,6 +4,18 @@ namespace t2t2;
 class SlimPlates extends \Slim\View {
 	// Instance of plate engine
 	public $engine = null;
+	public $app = null;
+
+	public function __construct(\Slim\Slim $app = null) {
+		parent::__construct();
+
+		// Try to autofetch Slim if it's skipped
+		if(!$app) {
+			$this->app = \Slim\Slim::getInstance();
+		} else {
+			$this->app = $app;
+		}
+	}
 
 	// Renderer
 	public function render($tplFile) {
@@ -19,7 +31,7 @@ class SlimPlates extends \Slim\View {
 		}
 
 		$this->engine = new \League\Plates\Engine($this->getTemplatesDirectory());
-		$this->engine->loadExtension(new SlimPlatesExtension());
+		$this->engine->loadExtension(new SlimPlatesExtension($this->app));
 
 		return $this->engine;
 	}
@@ -28,6 +40,16 @@ class SlimPlates extends \Slim\View {
 class SlimPlatesExtension implements \League\Plates\Extension\ExtensionInterface {
 	public $engine;
 	public $template;
+	public $app;
+
+	public function __construct(\Slim\Slim $app = null) {
+		// Try to autofetch Slim if it's skipped
+		if(!$app) {
+			$this->app = \Slim\Slim::getInstance();
+		} else {
+			$this->app = $app;
+		}
+	}
 
 	public function getFunctions() {
 		return array(
@@ -36,15 +58,11 @@ class SlimPlatesExtension implements \League\Plates\Extension\ExtensionInterface
 		);
 	}
 
-	public function getSlim() {
-		return \Slim\Slim::getInstance();
-	}
-
-	public function urlFor($value) {
-		return $this->getSlim()->urlFor($value);
+	public function urlFor($value, $params = array()) {
+		return $this->app->urlFor($value, $params);
 	}
 
 	public function url($value) {
-		return $this->getSlim()->request->getRootUri().'/'.$value;
+		return $this->app->request->getRootUri().'/'.$value;
 	}
 }

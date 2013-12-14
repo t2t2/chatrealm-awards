@@ -91,6 +91,7 @@ header.global h1 {
 	display: block;
 	text-align: center;
 	border-bottom: 1px dotted #999999;
+	font-size: 0.9em;
 }
 
 
@@ -147,6 +148,20 @@ a.category-panel:hover h4, .category-panel label {
 	top: 0;
 }
 
+.vote-form {
+	margin-top: 1em;
+}
+.vote-form .nominee {
+	margin-top: 0.5em;
+	padding-top: 0.5em;
+	border-top: 1px solid #999999;
+}
+.vote-form .nominee h5 {
+	margin-bottom: 0;
+}
+.vote-form .nominee button {
+	margin-bottom: 0;
+}
 
 
 form .help {

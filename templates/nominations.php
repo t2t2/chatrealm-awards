@@ -10,7 +10,7 @@ $this->javascript = array('nominations', 'home');
 		<div class="lead">
 			<h2>Nominations</h2>
 			<p>If I had my way I would make sure you could only vote for me! But apparently this isn't allowed according to the great code of awards ceremonies. Someone should tell that to <a href="http://chatrealm.us/awards/" target="_blank">those chumps</a>.</p>
-			<p>You can nominate once per category per day! Limit is reset at midnight PST. Next reset is in <date data-time="<?= $this->next_reset->format('U'); ?>" data-countdown="true">less than 24 hours</date>.</p>
+			<p>You can nominate once per category per day! The limit is reset at midnight PST. Next reset is in <date data-time="<?= $this->next_reset->format('U'); ?>" data-countdown="true">less than 24 hours</date>.</p>
 		</div>
 		<?php if($this->between[0]->isFuture()): ?>
 			<div class="alert-box">Nomination period hasn't started yet.</div>

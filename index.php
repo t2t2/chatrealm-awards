@@ -6,7 +6,7 @@ use Carbon\Carbon;
 // Initialisation
 session_start();
 $app = new \Slim\Slim(require "config.php");
-$app->view(new \t2t2\SlimPlates());
+$app->view(new \t2t2\SlimPlates($app));
 
 $app->container->singleton("pdo", function () use($app) {
 	$config = $app->config("database");
@@ -162,7 +162,7 @@ $app->get("/", function() use($app) {
 	extract(getSeasonViewData($season));
 	$seasons = $app->db->seasons()->order("id desc")->select("id", "name");
 
-	$categories = $season->categorys();
+	$categories = $season->categorys()->where("published", 1);
 
 	$between = array(new Carbon($season["nominations_start"]), new Carbon($season["nominations_end"]));
 
@@ -200,7 +200,7 @@ $app->post("/nominate", function() use($app) {
 	$title = $req->params("title");
 	$url = $req->params("url");
 
-	if(!($category = $season->categorys("id", $category)->fetch())) {
+	if(!($category = $season->categorys("id", $category)->fetch()) or !$category["published"]) {
 		if($req->isAjax()) {
 			echo json_encode(array("error" => "ಠ_ಠ"));
 			return;
@@ -222,7 +222,7 @@ $app->post("/nominate", function() use($app) {
 			echo json_encode(array("success" => true));
 			return;
 		} else {
-			$app->flash("success", "Already voted in this category today");
+			$app->flash("success", "Your nomination has been saved!");
 			$app->redirect($app->urlFor("home.categories"));
 		}
 	} else {
@@ -236,6 +236,88 @@ $app->post("/nominate", function() use($app) {
 	}
 
 })->name("nominations.post");
+
+/* VOTING PERIOD */
+$app->get("/", function() use($app) {
+	$req = $app->request();
+	$season = $app->db->seasons[$app->config("season")];
+	if($season["current"] != "voting") {
+		$app->pass();
+	}
+
+	extract(getSeasonViewData($season));
+	$seasons = $app->db->seasons()->order("id desc")->select("id", "name");
+
+	$categories = $season->categorys()->where("published", 1);
+
+	$between = array(new Carbon($season["voting_start"]), new Carbon($season["voting_end"]));
+
+	$voted_today = array();
+	$awardchecks = $app->db->votes(array("ip" => $req->getIp(), "date" => Carbon::now()->toDateString()));
+	foreach ($awardchecks as $vote) { // Somehow this is just 2 queries.... wait isn't this just a bunch of copy-pasta?
+		$voted_today[$vote->nominee["category_id"]] = true;
+	}
+
+	$next_reset = Carbon::tomorrow();
+
+	$app->render("voting", compact("title", "seasons", "season", "timeplan", "between", "categories", "next_reset", "voted_today"));
+})->name("home.voting");
+
+$app->post("/vote/:category", function($category) use($app) {
+	$req = $app->request();
+	$season = $app->db->seasons[$app->config("season")];
+	if($season["current"] != "voting") {
+		$app->pass();
+	}
+
+	$between = array(new Carbon($season["voting_start"]), new Carbon($season["voting_end"]));
+
+	if($between[0]->isFuture() or $between[1]->isPast()) {
+		if($req->isAjax()) {
+			echo json_encode(array("error" => "Voting period is over!"));
+			return;
+		} else {
+			$app->flash("alert", "Voting period is over!");
+			$app->redirect($app->urlFor("home.voting"));
+		}
+	}
+
+	$nominee = $req->params("nominee");
+	if(!($category = $season->categorys("id", $category)->fetch()) or !$category["published"]
+	   or !($nominee = $category->nominees("id", $nominee)->fetch())) { // Can't find category, nominee or unpublished category
+		if($req->isAjax()) {
+			echo json_encode(array("error" => "ಠ_ಠ"));
+			return;
+		} else {
+			$app->flash("alert", "ಠ_ಠ");
+			$app->redirect($app->urlFor("home.voting"));
+		}
+	}
+	
+	$votecheck = $nominee->votes(array("ip" => $req->getIp(), "date" => Carbon::now()->toDateString()))->limit(1);
+	if(count($votecheck) == 0) {
+		$vote = $votecheck->insert(array(
+			"ip" => $req->getIp(),
+			"date" => Carbon::now()->toDateString(),
+		));
+		if($req->isAjax()) {
+			echo json_encode(array("success" => true));
+			return;
+		} else {
+			$app->flash("success", "Your vote has been saved!");
+			$app->redirect($app->urlFor("home.voting"));
+		}
+	} else {
+		if($req->isAjax()) {
+			echo json_encode(array("error" => "Already voted in this category today"));
+			return;
+		} else {
+			$app->flash("alert", "Already voted in this category today");
+			$app->redirect($app->urlFor("home.voting"));
+		}
+	}
+})->name("voting.post");
+
 
 // Do your thing
 $app->run();
