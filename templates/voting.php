@@ -37,7 +37,7 @@ $this->javascript = array('voting', 'home');
 											<div class="nominee clearfix">
 												<button name="nominee" value="<?= $nominee["id"] ?>" class="right shorty button">Vote</button>
 												<h5><?= $this->e($nominee["name"]) ?></h5>
-												<? if($nominee["url"]) ?>
+												<? if($nominee["url"]): ?>
 													<small><a href="<?= $this->e($nominee["url"]) ?>"><?= $this->e($nominee["url"]) ?></a></small>
 												<? endif ?>
 											</div>

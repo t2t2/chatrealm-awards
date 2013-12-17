@@ -11,7 +11,7 @@ $app->view(new \t2t2\SlimPlates($app));
 $app->container->singleton("pdo", function () use($app) {
 	$config = $app->config("database");
 
-	return new PDO("mysql:dbname={$config["dbname"]}", $config["username"], $config["password"]);
+	return new PDO("mysql:dbname={$config["dbname"]}", $config["username"], $config["password"], array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8"));
 });
 $app->container->singleton("db", function () use($app) {
 	$config = $app->config("database");
