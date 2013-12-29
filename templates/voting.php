@@ -55,6 +55,19 @@ $this->javascript = array('voting', 'home');
 											<h4><?= $this->e($category["title"]) ?></h4>
 										</div>
 									</div>
+									<div class="vote-form">
+										<?php foreach($category->nominees() as $nominee): ?>
+											<div class="nominee clearfix">
+												<?php if($this->voted_today[$category["id"]] == $nominee["id"]): ?>
+													<i class="fa fa-check fa-2x right"></i>
+												<?php endif; ?>
+												<h5><?= $this->e($nominee["name"]) ?></h5>
+												<? if($nominee["url"]): ?>
+													<small><a href="<?= $this->e($nominee["url"]) ?>"><?= $this->e($nominee["url"]) ?></a></small>
+												<? endif ?>
+											</div>
+										<?php endforeach ?>
+									</div>
 								</div>
 							<?php endif ?>
 						</li>

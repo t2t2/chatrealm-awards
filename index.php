@@ -255,7 +255,7 @@ $app->get("/", function() use($app) {
 	$voted_today = array();
 	$awardchecks = $app->db->votes(array("ip" => $req->getIp(), "date" => Carbon::now()->toDateString()));
 	foreach ($awardchecks as $vote) { // Somehow this is just 2 queries.... wait isn't this just a bunch of copy-pasta?
-		$voted_today[$vote->nominee["category_id"]] = true;
+		$voted_today[$vote->nominee["category_id"]] = $vote->nominee["id"];
 	}
 
 	$next_reset = Carbon::tomorrow();
@@ -318,6 +318,53 @@ $app->post("/vote/:category", function($category) use($app) {
 	}
 })->name("voting.post");
 
+
+
+/* Results */
+$app->get("/results(/:season(/:format(/:secret)))", function($season = null, $format = "html", $secret = null) use($app) {
+	$req = $app->request();
+	$season = $app->db->seasons[$season ?: $app->config("season")];
+	if($season["archived"] == 0 and $secret != $season["access_secret"]) {
+		$app->pass();
+	}
+
+	$result_data = array_map(function($category) {
+		$returns = array(
+			"id" => $category["id"],
+			"title" => $category["title"],
+			"award" => $category["award"],
+			"nominees" => array(),
+			"total" => 0
+		);
+
+		foreach ($category->nominees() as $nomid => $nominee) {
+			$returns["nominees"][] = array(
+				"id" => $nominee["id"],
+				"name" => $nominee["name"],
+				"url" => $nominee["url"],
+				"count" => intval($nominee->votes()->count("id"))
+			);
+			$returns["total"] += $nominee->votes()->count("id");
+		}
+		return $returns;
+	}, $season->categorys()->where("published", 1)->jsonSerialize());
+
+	if($format == "json") {
+		echo json_encode($result_data);
+	} else {
+		extract(getSeasonViewData($season));
+		$seasons = $app->db->seasons()->order("id desc")->select("id", "name");
+
+		array_walk($result_data, function(&$category) {
+			usort($category["nominees"], function($a, $b) {
+				return $b["count"] - $a["count"]; // z-to-a
+			});
+
+		});
+
+		$app->render("results", compact("title", "seasons", "season", "timeplan", "result_data"));
+	}
+})->name("results");
 
 // Do your thing
 $app->run();

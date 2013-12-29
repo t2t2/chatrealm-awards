@@ -134,6 +134,9 @@ a.category-panel:hover h4, .category-panel label {
 .category-panel a { /* Not to be mistaken with link that is a category-panel */
 	color: #999999;
 }
+.category-panel.voted a {
+	color: #666666;
+}
 .category-panel small, .category-panel label {
 	line-height: 1em;
 }
@@ -148,21 +151,38 @@ a.category-panel:hover h4, .category-panel label {
 	top: 0;
 }
 
-.vote-form {
+.category-panel .vote-form {
 	margin-top: 1em;
 }
-.vote-form .nominee {
+.category-panel .nominee {
 	margin-top: 0.5em;
 	padding-top: 0.5em;
 	border-top: 1px solid #999999;
 }
-.vote-form .nominee h5 {
+.category-panel .nominee h5 {
 	margin-bottom: 0;
 }
-.vote-form .nominee button {
+.category-panel .nominee button {
 	margin-bottom: 0;
 }
+.category-panel .nominee .votes {
+	font-size: 2em;
+	line-height: 1.2em;
+	margin-left: 0.3em;
+	font-family: "Open Sans";
+}
+.category-panel .progress {
+	padding: 0;
+	border: none;
+	height: 0.4em;
+	margin-top: -0.5em;
+	margin-bottom: 0.2em;
 
+	background-color: transparent;
+}
+.category-panel .progress>.meter {
+	background-color: rgba(0, 140, 186, 0.3);
+}
 
 form .help {
 	font-size: 0.9em;
