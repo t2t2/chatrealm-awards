@@ -1,12 +1,12 @@
 {
 	"require": {
 		"slim/slim": "2.*",
-		"league/plates": "1.0.*",
+		"league/plates": "~3.0",
 		"vrana/notorm": "dev-master",
 		"nesbot/Carbon": "*"
 	},
 	"autoload": {
-		"psr-0": {"t2t2": "src/"}
+		"psr-4": {"t2t2\\": "src/"}
 	},
 	"config": {
 		"preferred-install": "dist"

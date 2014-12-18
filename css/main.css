@@ -3,8 +3,13 @@ body {
 	color: #dddddd;
 }
 
+.debug code {
+	display: block;
+}
+
 h1, h2, h3, h4, h5, h6, legend, label {
 	color: #dddddd;
+	font-family: 'Open Sans', sans-serif;
 }
 .inverted {
 	background: #cccccc;
@@ -125,14 +130,14 @@ a.category-panel.voted {
 .category-panel h4 {
 	margin-bottom: 0;
 }
-a.category-panel:hover h4, .category-panel label {
+a.category-panel.votable:hover h4, .category-panel label {
 	color: #666666;
 }
 .category-panel label {
 	margin-top: 0.3em;
 }
 .category-panel a { /* Not to be mistaken with link that is a category-panel */
-	color: #999999;
+	color: #666666;
 }
 .category-panel.voted a {
 	color: #666666;
@@ -182,6 +187,20 @@ a.category-panel:hover h4, .category-panel label {
 }
 .category-panel .progress>.meter {
 	background-color: rgba(0, 140, 186, 0.3);
+}
+
+#live-source button {
+	margin-bottom: 0;
+	height: 100%;
+}
+#live-source button.double {
+	height: 4.3em;
+}
+#live-source button small {
+	line-height: 2em;
+}
+#live-source td {
+	padding: 0;
 }
 
 form .help {

@@ -21,9 +21,6 @@ return array(
 	 * Site configuration
 	 */
 
-	// Current season
-	"season" => 2,
-
 	// Default timezone
 	"timezone" => "America/Los_Angeles",
 );
