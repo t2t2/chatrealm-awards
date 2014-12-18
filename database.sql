@@ -1,8 +1,8 @@
--- Adminer 3.7.1 MySQL dump
+-- Adminer 4.1.0 MySQL dump
 
 SET NAMES utf8;
+SET time_zone = '+00:00';
 SET foreign_key_checks = 0;
-SET time_zone = '+02:00';
 SET sql_mode = 'NO_AUTO_VALUE_ON_ZERO';
 
 DROP TABLE IF EXISTS `award_categorys`;
@@ -21,12 +21,15 @@ CREATE TABLE `award_categorys` (
 DROP TABLE IF EXISTS `award_category_nominations`;
 CREATE TABLE `award_category_nominations` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `season_id` int(10) unsigned NOT NULL,
   `category` text COLLATE utf8_unicode_ci NOT NULL,
   `nominees` text COLLATE utf8_unicode_ci NOT NULL,
   `ip` varchar(40) COLLATE utf8_unicode_ci NOT NULL,
   `date` date NOT NULL,
   `created_at` datetime NOT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `season_id` (`season_id`),
+  CONSTRAINT `award_category_nominations_ibfk_1` FOREIGN KEY (`season_id`) REFERENCES `award_seasons` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 
@@ -62,7 +65,8 @@ CREATE TABLE `award_seasons` (
   `name` varchar(64) COLLATE utf8_unicode_ci NOT NULL,
   `promo` text COLLATE utf8_unicode_ci NOT NULL,
   `current` enum('categories','nominations','voting','show') COLLATE utf8_unicode_ci NOT NULL,
-  `archived` bit(1) NOT NULL,
+  `archived` tinyint(1) NOT NULL,
+  `access_secret` varchar(64) COLLATE utf8_unicode_ci NOT NULL,
   `categories_start` datetime NOT NULL,
   `categories_end` datetime NOT NULL,
   `nominations_start` datetime NOT NULL,
@@ -70,6 +74,7 @@ CREATE TABLE `award_seasons` (
   `voting_start` datetime NOT NULL,
   `voting_end` datetime NOT NULL,
   `awards_show` datetime NOT NULL,
+  `awards_show_youtube` varchar(16) COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
@@ -86,4 +91,4 @@ CREATE TABLE `award_votes` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
--- 2013-12-14 20:54:00
+-- 2014-12-18 19:28:33
